@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+#SBATCH --mail-user=spencerng@cs.uchicago.edu
+#SBATCH --mail-type=ALL
+#SBATCH --output=/home/spencerng/slurm/squad.stdout
+#SBATCH --error=/home/spencerng/slurm/squad.stderr
+#SBATCH --chdir=/home/spencerng/squad-sentiment
+#SBATCH --job-name=train_squad
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --mem-per-cpu=16000MB
+#SBATCH --partition=titan
+#SBATCH --time=4:00:00
+
+
+python3 question_answering_on_squad.py

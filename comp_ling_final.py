@@ -110,7 +110,9 @@ def read_squad(data_file="data/qa.csv", contexts="data/contexts.csv", train=True
             )
         )
     else:
-        answers = list(map(lambda q: str(q[1]["answer"]).split("|")[0], questions.iterrows()))
+        answers = list(
+            map(lambda q: str(q[1]["answer"]).split("|")[0], questions.iterrows())
+        )
 
     return contexts_list, questions_list, answers
 
@@ -239,7 +241,9 @@ def eval_squad(save="models/baseline_model.ckpt"):
 
     tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
 
-    test_contexts, test_questions, test_answers = read_squad(data_file="data/testset.csv", train=False)
+    test_contexts, test_questions, test_answers = read_squad(
+        data_file="data/testset.csv", train=False
+    )
     test_encodings = tokenizer(
         test_contexts, test_questions, truncation=True, padding=True
     )
@@ -247,33 +251,29 @@ def eval_squad(save="models/baseline_model.ckpt"):
 
     test_dataset = SquadDataset(test_encodings)
 
-
     predictions = open("predictions.txt", "w+")
     predictions.write("pred,ans\n")
 
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     for i, sample in tqdm(enumerate(test_loader)):
-        
+
         input_ids = sample["input_ids"].to(device)
         attention_mask = sample["attention_mask"].to(device)
         outputs = baseline_model(
             input_ids,
             attention_mask=attention_mask,
         )
-        
+
         start = np.argmax(outputs.start_logits.cpu().detach())
         end = np.argmax(outputs.end_logits.cpu().detach())
         print(f"{start}, {end}, {sample['answer']}")
-        pred_answer = test_contexts[i][start:end + 1]
-        
+        pred_answer = test_contexts[i][start : end + 1]
 
         # print(pred_answer, test_contexts[i])
         predictions.write(f"{pred_answer},{test_answers[sample['answer']]}\n")
 
-
     predictions.close()
-    
 
 
 if __name__ == "__main__":
