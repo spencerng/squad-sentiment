@@ -1,32 +1,63 @@
-model_checkpoint = "bert-base-uncased"
-batch_size = 4
-
-import datasets
-from datasets import load_dataset, load_metric
-from tqdm import tqdm
-
-
-from datasets import ClassLabel, Sequence, Dataset
 import random
 import pandas as pd
-
-
-from transformers import BertTokenizerFast
-
-tokenizer = BertTokenizerFast.from_pretrained(model_checkpoint)
-
+import datasets
 import transformers
 
-max_length = 384  # The maximum length of a feature (question and context)
-doc_stride = 128  # The authorized overlap between two part of the context when splitting it is needed.
+from datasets import load_dataset, load_metric, ClassLabel, Sequence, Dataset
+from tqdm import tqdm
+from transformers import default_data_collator, BertTokenizerFast
+
+
+def train(batch_size=4):
+    tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
+
+    # The maximum length of a feature (question and context)
+    max_length = 384
+
+    # The authorized overlap between two part of the context when splitting it is needed.
+    doc_stride = 128
+
+    qas = pd.read_csv("data/qa.csv")
+    contexts = pd.read_csv("data/contexts.csv").set_index("id").to_dict()["context"]
+    qas["context"] = [contexts[c] for c in qas["context"]]
+
+    qas = Dataset.from_pandas(qas)
+
+    tokenized_train_set = qas.map(
+        prepare_train_features, batched=True, remove_columns=qas.column_names
+    )
+
+    from transformers import BertForQuestionAnswering, TrainingArguments, Trainer
+
+    model = BertForQuestionAnswering.from_pretrained("bert-base-uncased")
+
+    args = TrainingArguments(
+        f"bert-uncased-finetuned-squad",
+        evaluation_strategy="epoch",
+        learning_rate=2e-5,
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        num_train_epochs=3,
+        weight_decay=0.01,
+    )
+
+    data_collator = default_data_collator
+
+    trainer = Trainer(
+        model,
+        args,
+        train_dataset=tokenized_train_set,
+        data_collator=data_collator,
+        tokenizer=tokenizer,
+    )
+
+    trainer.train()
+    trainer.save_model("test-squad-trained")
 
 
 def prepare_train_features(examples):
     examples["question"] = [q.lstrip() for q in examples["question"]]
 
-    # Tokenize our examples with truncation and padding, but keep the overflows using a stride. This results
-    # in one example possible giving several features when a context is long, each of those features having a
-    # context that overlaps a bit the context of the previous feature.
     tokenized_examples = tokenizer(
         examples["question"],
         examples["context"],
@@ -36,10 +67,8 @@ def prepare_train_features(examples):
         padding="max_length",
     )
 
-    # The offset mappings will give us a map from token to character position in the original context. This will
-    # help us compute the start_positions and end_positions.
+    # Offset mappings give a map from token to character position in the original context
     offset_mapping = tokenized_examples.pop("offset_mapping")
-
     start_positions = list()
     end_positions = list()
 
@@ -74,7 +103,7 @@ def prepare_train_features(examples):
             start_positions.append(0)
             end_positions.append(0)
         else:
-            # Otherwise it's the start and end token positions
+            # Otherwise put start/end positions
             idx = context_start
             while idx <= context_end and offsets[idx][0] <= start_char:
                 idx += 1
@@ -94,50 +123,6 @@ def prepare_train_features(examples):
 
     return tokenized_examples
 
-
-qas = pd.read_csv("data/qa.csv")
-contexts = pd.read_csv("data/contexts.csv").set_index("id").to_dict()["context"]
-qas["context"] = [contexts[c] for c in qas["context"]]
-
-
-qas = Dataset.from_pandas(qas)
-
-tokenized_train_set = qas.map(
-    prepare_train_features, batched=True, remove_columns=qas.column_names
-)
-
-from transformers import BertForQuestionAnswering, TrainingArguments, Trainer
-
-model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
-
-
-model_name = model_checkpoint.split("/")[-1]
-args = TrainingArguments(
-    f"{model_name}-finetuned-squad",
-    evaluation_strategy="epoch",
-    learning_rate=2e-5,
-    per_device_train_batch_size=batch_size,
-    per_device_eval_batch_size=batch_size,
-    num_train_epochs=3,
-    weight_decay=0.01,
-)
-
-
-from transformers import default_data_collator
-
-data_collator = default_data_collator
-
-
-trainer = Trainer(
-    model,
-    args,
-    train_dataset=tokenized_train_set,
-    data_collator=data_collator,
-    tokenizer=tokenizer,
-)
-
-trainer.train()
-trainer.save_model("test-squad-trained")
 
 """## Evaluation
 
