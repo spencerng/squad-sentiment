@@ -14,4 +14,4 @@
 #SBATCH --time=4:00:00
 
 
-python3 question_answering_on_squad.py
+python3 train.py
