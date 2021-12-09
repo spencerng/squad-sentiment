@@ -58,7 +58,7 @@ def train(data_folder="data", batch_size=4):
     )
 
     trainer.train()
-    trainer.save_model("test-squad-trained")
+    trainer.save_model("models/squad-bert")
 
 
 def prepare_train_features(examples):

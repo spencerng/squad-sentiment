@@ -1,22 +1,6 @@
 #!/usr/bin/env python
-
 import csv
 import json
-import json
-import torch
-import pandas as pd
-from transformers import (
-    BertTokenizerFast,
-    BertConfig,
-    BertModel,
-    BertForQuestionAnswering,
-    AdamW,
-)
-
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-import numpy as np
-from datasets import load_dataset, load_metric
 
 
 def cleanup(train_path, dev_path):
@@ -62,20 +46,34 @@ def cleanup(train_path, dev_path):
                         }
                     )
 
-    with open("data/testset.csv", "w") as csvfile:
-        fieldnames = ["question", "answers", "context_id"]
+    with open("data/test_contexts.csv", "w") as csvfile:
+        fieldnames = ["id", "context"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
-        for i in range(len(train_data)):
-            for j in range(len(train_data[i]["paragraphs"])):
-                for l in range(len(train_data[i]["paragraphs"][j]["qas"])):
+        for i in range(len(dev_data)):
+            for j in range(len(dev_data[i]["paragraphs"])):
+                writer.writerow(
+                    {
+                        "id": str(i) + "x" + str(j),
+                        "context": dev_data[i]["paragraphs"][j]["context"],
+                    }
+                )
+
+    with open("data/testset.csv", "w") as csvfile:
+        fieldnames = ["question", "answer", "context_id", "id"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for i in range(len(dev_data)):
+            for j in range(len(dev_data[i]["paragraphs"])):
+                for l in range(len(dev_data[i]["paragraphs"][j]["qas"])):
                     a = "|".join(
                         list(
                             set(
                                 map(
-                                    lambda x: x["text"],
-                                    train_data[i]["paragraphs"][j]["qas"][l]["answers"],
+                                    lambda x: x["text"].strip(),
+                                    dev_data[i]["paragraphs"][j]["qas"][l]["answers"],
                                 )
                             )
                         )
@@ -83,9 +81,10 @@ def cleanup(train_path, dev_path):
                     writer.writerow(
                         {
                             "context_id": str(i) + "x" + str(j),
-                            "question": train_data[i]["paragraphs"][j]["qas"][l][
+                            "question": dev_data[i]["paragraphs"][j]["qas"][l][
                                 "question"
                             ],
+                            "id": dev_data[i]["paragraphs"][j]["qas"][l]["id"],
                             "answer": a,
                         }
                     )
