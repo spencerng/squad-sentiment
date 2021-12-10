@@ -63,12 +63,11 @@ with open('./data/qa.csv', 'w') as csvfile:
               if category != 'other':
                 catcnt += 1
               writer.writerow({'context_id': str(i) + "x" + str(j), 'question': train_data[i]["paragraphs"][j]["qas"][l]["question"],  'answer': train_data[i]["paragraphs"][j]["qas"][l]["answers"][0]["text"], "start_pos": train_data[i]["paragraphs"][j]["qas"][l]["answers"][0]["answer_start"], 'category': category})
-
+print("Categorized " + str(catcnt) + " questions")
 
 with open('./data/testset.csv', 'w') as csvfile:
         fieldnames = ['question', 'answers', 'context_id']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        print("Categorized " + str(catcnt) + " questions")
 
 
         writer.writeheader()
