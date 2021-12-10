@@ -71,21 +71,17 @@ def cleanup(train_path, dev_path):
                 for l in range(len(dev_data[i]["paragraphs"][j]["qas"])):
                     category = 'other'
                     question = dev_data[i]["paragraphs"][j]["qas"][l]["question"]
-                    if re.search('^.*[Ww]hich\s.*\s(team)\s.*\?', question):
+                    if re.search('^.*[Ww]hich\s.*\s(team)\s(?!member).*\?', question):
                         category = "other entity"
-                    if re.search('^.*\s(day|date)\s.*\?', question):
-                        category = "date"
-                    if re.search('^.*[Ww]ho\s.*\s(player)\s.*\?', question):
-                        category = "person"
                     if re.search('^.*[Ww]ho\s(is|was)\s.*\?', question):
                         category = "person"
-                    if re.search('^.*[Hh]ow\s(many|long)\s.*\?', question):
+                    if re.search('^.*[Hh]ow\s(much|many|long)\s.*\?', question):
                         category = "other numeric"
                     if re.search('^What\s(is|was)\s.*\scost\sof\s.*\?', question):
                         category = "other numeric"
-                    if re.search('^.*\scolor\s.*\?', question):
+                    if re.search('^.*[Ww]hat\scolor\s.*\?', question):
                         category = "adjective phrase"
-                    if re.search('^.*\slanguage\s.*\?', question):
+                    if re.search('^.*[Ww]hat.*\slanguage\s.*\?', question):
                         category = "common noun phrase"
                     if re.search('^.*[Ww]here\s(did|do)\s.*\s(to|from)\s.*\?', question):
                         category = "location"
@@ -94,6 +90,8 @@ def cleanup(train_path, dev_path):
                     if re.search('^.*[Ww]hat\s(year|month|day)\s.*\?', question):
                         category = "date"
                     if re.search('^.*[Hh]ow\sdid\s.*\?', question):
+                        category = "common noun phrase"
+                    if re.search('^.*name\sof.*\?', question):
                         category = "common noun phrase"
                         #print(f"Q: {question}\nCAT: {category}")
                     if category != 'other':
