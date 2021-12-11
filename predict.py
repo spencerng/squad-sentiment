@@ -17,6 +17,8 @@ from transformers import (
     TrainingArguments,
 )
 
+# Adapted from https://colab.research.google.com/github/huggingface/notebooks/blob/master/examples/question_answering.ipynb
+
 
 def prepare_validation_features(examples):
     examples["question"] = [q.lstrip() for q in examples["question"]]
@@ -215,7 +217,7 @@ def predict(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prefix", type=str, default="", required=False)
+    parser.add_argument("--suffix", type=str, default="", required=False)
     parser.add_argument("--modify_question", action="store_true")
     parser.add_argument("--modify_context", action="store_true")
 
@@ -230,11 +232,8 @@ if __name__ == "__main__":
     doc_stride = 128
     batch_size = 4
 
-    if len(sys.argv) == 1:
-        predict()
-    else:
-        predict(
-            suffix=args.prefix,
-            modify_question=args.modify_question,
-            modify_context=args.modify_context,
-        )
+    predict(
+        suffix=args.suffix,
+        modify_question=args.modify_question,
+        modify_context=args.modify_context,
+    )

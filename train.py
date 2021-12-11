@@ -13,6 +13,8 @@ from transformers import (
     Trainer,
 )
 
+# Adapted from https://colab.research.google.com/github/huggingface/notebooks/blob/master/examples/question_answering.ipynb
+
 
 def train(data_folder="data", batch_size=4):
     tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")

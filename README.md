@@ -29,7 +29,7 @@ python3 train.py
 
 ```
 mkdir results
-python3 predict.py [--prefix <cosine similarity>] [--modify_question] [--modify_context]
+python3 predict.py [--suffix <cosine similarity>] [--modify_question] [--modify_context]
 ```
 
 5. Generate adverserial examples
@@ -38,7 +38,7 @@ python3 predict.py [--prefix <cosine similarity>] [--modify_question] [--modify_
 python3 synonym_replace.py
 ```
 
-6. Evaluate the accuracy of the 
+6. Evaluate the accuracy of the generated predictions
 
 ```
 python3 evaluate.py <prediction JSON file>
