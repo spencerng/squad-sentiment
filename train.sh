@@ -8,8 +8,8 @@
 #SBATCH --job-name=train_squad
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --gres=gpu:1
-#SBATCH --mem-per-cpu=16000MB
+#SBATCH --gres=gpu:2
+#SBATCH --mem-per-cpu=12000MB
 #SBATCH --partition=titan
 #SBATCH --time=4:00:00
 

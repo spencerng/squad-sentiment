@@ -3,6 +3,7 @@ import csv
 import json
 import re
 
+
 def cleanup(train_path, dev_path):
     with open(train_path) as json_file:
         train_data = json.load(json_file)["data"]
@@ -60,7 +61,7 @@ def cleanup(train_path, dev_path):
                     }
                 )
 
-    with open("data/testset.csv", "w") as csvfile:
+    with open("data/test_questions.csv", "w") as csvfile:
         fieldnames = ["question", "answer", "context_id", "id", "category"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -69,32 +70,34 @@ def cleanup(train_path, dev_path):
         for i in range(len(dev_data)):
             for j in range(len(dev_data[i]["paragraphs"])):
                 for l in range(len(dev_data[i]["paragraphs"][j]["qas"])):
-                    category = 'other'
+                    category = "other"
                     question = dev_data[i]["paragraphs"][j]["qas"][l]["question"]
-                    if re.search('^.*[Ww]hich\s.*\s(team)\s(?!member).*\?', question):
+                    if re.search("^.*[Ww]hich\s.*\s(team)\s(?!member).*\?", question):
                         category = "other entity"
-                    if re.search('^.*[Ww]ho\s(is|was)\s.*\?', question):
+                    if re.search("^.*[Ww]ho\s(is|was)\s.*\?", question):
                         category = "person"
-                    if re.search('^.*[Hh]ow\s(much|many|long)\s.*\?', question):
+                    if re.search("^.*[Hh]ow\s(much|many|long)\s.*\?", question):
                         category = "other numeric"
-                    if re.search('^What\s(is|was)\s.*\scost\sof\s.*\?', question):
+                    if re.search("^What\s(is|was)\s.*\scost\sof\s.*\?", question):
                         category = "other numeric"
-                    if re.search('^.*[Ww]hat\scolor\s.*\?', question):
+                    if re.search("^.*[Ww]hat\scolor\s.*\?", question):
                         category = "adjective phrase"
-                    if re.search('^.*[Ww]hat.*\slanguage\s.*\?', question):
+                    if re.search("^.*[Ww]hat.*\slanguage\s.*\?", question):
                         category = "common noun phrase"
-                    if re.search('^.*[Ww]here\s(did|do)\s.*\s(to|from)\s.*\?', question):
+                    if re.search(
+                        "^.*[Ww]here\s(did|do)\s.*\s(to|from)\s.*\?", question
+                    ):
                         category = "location"
-                    if re.search('^.*[Ww]hose\s.*\?', question):
+                    if re.search("^.*[Ww]hose\s.*\?", question):
                         category = "person"
-                    if re.search('^.*[Ww]hat\s(year|month|day)\s.*\?', question):
+                    if re.search("^.*[Ww]hat\s(year|month|day)\s.*\?", question):
                         category = "date"
-                    if re.search('^.*[Hh]ow\sdid\s.*\?', question):
+                    if re.search("^.*[Hh]ow\sdid\s.*\?", question):
                         category = "common noun phrase"
-                    if re.search('^.*name\sof.*\?', question):
+                    if re.search("^.*name\sof.*\?", question):
                         category = "common noun phrase"
-                        #print(f"Q: {question}\nCAT: {category}")
-                    if category != 'other':
+                        # print(f"Q: {question}\nCAT: {category}")
+                    if category != "other":
                         catcnt += 1
                     a = "|".join(
                         list(
