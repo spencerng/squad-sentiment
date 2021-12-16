@@ -1,1 +1,5 @@
-huggingface
+transformers
+nltk
+pandas
+tqdm
+datasets

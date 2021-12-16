@@ -6,7 +6,6 @@ import re
 import argparse
 import json
 import sys
-import sys
 import os
 
 import pandas as pd
@@ -189,5 +188,5 @@ def eval_all():
 
 
 if __name__ == "__main__":
-    # print(load_data(sys.argv[1]))
-    eval_all()
+    print(load_data(sys.argv[1]))
+    # eval_all()
